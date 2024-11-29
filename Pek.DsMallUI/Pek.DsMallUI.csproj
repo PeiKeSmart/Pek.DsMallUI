@@ -29,7 +29,7 @@
   
   <PropertyGroup>
     <IsPackable>true</IsPackable>
-    <PackageId>Pek.NCubeUI.MST</PackageId>
+    <PackageId>Pek.NCubeUI.DsMallUI</PackageId>
     <Authors>$(Company)</Authors>
     <PackageProjectUrl>https://www.haocoding.com/</PackageProjectUrl>
     <PackageIcon>DH.png</PackageIcon>
