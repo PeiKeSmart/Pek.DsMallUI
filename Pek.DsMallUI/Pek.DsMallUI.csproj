@@ -60,7 +60,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Pek.NCubeUI" Version="4.0.2024.1129-beta0234" />
+    <PackageReference Include="Pek.NCubeUI" Version="4.0.2024.1129-beta0347" />
   </ItemGroup>
 
   <ItemGroup>
