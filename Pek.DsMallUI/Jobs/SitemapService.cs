@@ -43,7 +43,7 @@ public class SitemapService : CubeJobBase<SitemapArgument>
         var Nonce = Pek.Helpers.Randoms.RandomString(6);
         var Sign = CheckSignature.Create(TimeStamp, Nonce, Token);
 
-        await Pek.Helpers.DHWeb.Client().Get($"{UrlHelper.Combine(DHSetting.Current.CurDomainUrl, "/Common/SitemapXml")}")
+        await Pek.Helpers.DHWeb.Client().Get($"{UrlHelper.Combine(DHSetting.Current.CurDomainUrl, "Common", "SitemapXml")}")
             .Header("Signature", Sign)
             .Header("Nonce", Nonce)
             .Header("TimeStamp", TimeStamp)
