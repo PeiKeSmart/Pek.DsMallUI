@@ -23,16 +23,14 @@ public class SitemapService : CubeJobBase<SitemapArgument>
 {
     private readonly ITracer _tracer;
     private readonly IEventPublisher _eventPublisher;
-    private readonly IHttpContextAccessor _httpContextAccessor;
 
     /// <summary>实例化生成sitemap服务</summary>
     /// <param name="tracer"></param>
     /// <param name="eventPublisher"></param>
-    public SitemapService(ITracer tracer, IEventPublisher eventPublisher, IHttpContextAccessor httpContextAccessor)
+    public SitemapService(ITracer tracer, IEventPublisher eventPublisher)
     {
         _tracer = tracer;
         _eventPublisher = eventPublisher;
-        _httpContextAccessor = httpContextAccessor;
     }
 
     /// <summary>执行作业</summary>
@@ -42,9 +40,7 @@ public class SitemapService : CubeJobBase<SitemapArgument>
     {
         using var span = _tracer?.NewSpan("Sitemap", argument);
 
-        XTrace.WriteLine($"是否为空：{_httpContextAccessor.HttpContext == null}");
-
-        _eventPublisher.Publish(new SiteMapEvent(httpContext: _httpContextAccessor.HttpContext));
+        _eventPublisher.Publish(new SiteMapEvent());
 
         //var Token = DHSetting.Current.ServerToken;  // 获取与服务器端协定的密钥
         //var TimeStamp = UnixTime.ToTimestamp();
