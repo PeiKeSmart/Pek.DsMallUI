@@ -42,6 +42,8 @@ public class SitemapService : CubeJobBase<SitemapArgument>
     {
         using var span = _tracer?.NewSpan("Sitemap", argument);
 
+        XTrace.WriteLine($"是否为空：{_httpContextAccessor.HttpContext == null}");
+
         _eventPublisher.Publish(new SiteMapEvent(httpContext: _httpContextAccessor.HttpContext));
 
         //var Token = DHSetting.Current.ServerToken;  // 获取与服务器端协定的密钥
