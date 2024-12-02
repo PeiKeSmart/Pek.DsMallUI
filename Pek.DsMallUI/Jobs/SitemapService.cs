@@ -3,7 +3,8 @@
 using NewLife.Cube.Jobs;
 using NewLife.Log;
 
-using Pek.NCubeUI.Events;
+using Pek.NCube.Filters;
+using Pek.Timing;
 
 namespace Pek.DsMallUI.Jobs;
 
@@ -22,37 +23,32 @@ public class SitemapArgument
 public class SitemapService : CubeJobBase<SitemapArgument>
 {
     private readonly ITracer _tracer;
-    private readonly IEventPublisher _eventPublisher;
 
     /// <summary>实例化生成sitemap服务</summary>
     /// <param name="tracer"></param>
-    /// <param name="eventPublisher"></param>
-    public SitemapService(ITracer tracer, IEventPublisher eventPublisher)
+    public SitemapService(ITracer tracer)
     {
         _tracer = tracer;
-        _eventPublisher = eventPublisher;
     }
 
     /// <summary>执行作业</summary>
     /// <param name="argument"></param>
     /// <returns></returns>
-    protected override Task<String> OnExecute(SitemapArgument argument)
+    protected override async Task<String> OnExecute(SitemapArgument argument)
     {
         using var span = _tracer?.NewSpan("Sitemap", argument);
 
-        _eventPublisher.Publish(new SiteMapEvent());
+        var Token = DHSetting.Current.ServerToken;  // 获取与服务器端协定的密钥
+        var TimeStamp = UnixTime.ToTimestamp();
+        var Nonce = Pek.Helpers.Randoms.RandomString(6);
+        var Sign = CheckSignature.Create(TimeStamp, Nonce, Token);
 
-        //var Token = DHSetting.Current.ServerToken;  // 获取与服务器端协定的密钥
-        //var TimeStamp = UnixTime.ToTimestamp();
-        //var Nonce = Pek.Helpers.Randoms.RandomString(6);
-        //var Sign = CheckSignature.Create(TimeStamp, Nonce, Token);
+        await Pek.Helpers.DHWeb.Client().Get($"{UrlHelper.Combine(DHSetting.Current.CurDomainUrl, "/Common/SitemapXml")}")
+            .Header("Signature", Sign)
+            .Header("Nonce", Nonce)
+            .Header("TimeStamp", TimeStamp)
+            .ResultAsync();
 
-        //await $"{Setting.Current.CurDomainUrl.Trim('/')}/Site/SiteMap"
-        //    .WithHeader("Signature", Sign)
-        //    .WithHeader("Nonce", Nonce)
-        //    .WithHeader("TimeStamp", TimeStamp)
-        //    .GetAsync();
-
-        return Task.FromResult("OK");
+        return "OK";
     }
 }
