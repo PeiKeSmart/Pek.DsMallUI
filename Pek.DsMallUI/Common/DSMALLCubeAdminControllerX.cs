@@ -30,14 +30,18 @@ public class DSMALLCubeAdminControllerX : PekAdminControllerBaseX
     /// <param name="context"></param>
     public override void OnActionExecuting(ActionExecutingContext context)
     {
+        XTrace.WriteLine($"DSMALLCubeAdminControllerX进来了么？");
+
         base.OnActionExecuting(context);
+
+        XTrace.WriteLine($"DSMALLCubeAdminControllerX进来了么1？");
 
         // Ajax请求不需要设置ViewBag
         if (!Request.IsAjaxRequest())
         {
             var ps = context.ActionArguments.ToNullable();
-
-            foreach(var item in ps)
+            XTrace.WriteLine($"DSMALLCubeAdminControllerX进来了么2？{ps.Count}");
+            foreach (var item in ps)
             {
                 XTrace.WriteLine($"查看参数   {item.Key}:{item.Value}");
             }
