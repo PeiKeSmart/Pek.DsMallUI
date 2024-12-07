@@ -18,7 +18,7 @@ using Pek.SyntaxHighlighing;
 using XCode;
 using XCode.Configuration;
 
-namespace Pek.DsMallUI.Common;
+namespace Pek.DsMallUI;
 
 /// <summary>
 /// 表示 HTML 扩展
