@@ -27,6 +27,12 @@ public static class UeditorConfig
     {
         get
         {
+            var list = _virtualFileProvider?.GetDirectoryContents("/").ToList();
+            foreach(var item in list!)
+            {
+                XTrace.WriteLine($"读取目录：{item.Name}:{item.PhysicalPath}");
+            }
+
             var directoryContents = _virtualFileProvider?.GetFileInfo($"/ueconfig.json");
             XTrace.WriteLine($"读取ueconfig.json：{Encoding.UTF8.GetString(directoryContents?.CreateReadStream().GetAllBytes()!)}");
             return JsonHelper.DecodeJson(Encoding.UTF8.GetString(directoryContents?.CreateReadStream().GetAllBytes()!));
