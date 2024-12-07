@@ -5,9 +5,21 @@
 /// </summary>
 public class UploadHandler : Handler
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public UploadConfig UploadConfig { get; }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public UploadResult Result { get; }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="config"></param>
     public UploadHandler(HttpContext context, UploadConfig config) : base(context)
     {
         UploadConfig = config;
@@ -17,7 +29,7 @@ public class UploadHandler : Handler
         };
     }
 
-    public override async Task<string> Process()
+    public override async Task<String> Process()
     {
         //var form = await Request.ReadFormAsync();
         //var file = form.Files[UploadConfig.UploadFieldName];

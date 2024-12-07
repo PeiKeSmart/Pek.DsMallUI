@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.RegularExpressions;
 
 using NewLife.Log;
 using NewLife.Serialization;
@@ -27,17 +28,19 @@ public static class UeditorConfig
     {
         get
         {
-            XTrace.WriteLine($"判断是否为空：{_virtualFileProvider == null}");
-            var list = _virtualFileProvider?.GetDirectoryContents("/").ToList();
-            foreach(var item in list!)
-            {
-                XTrace.WriteLine($"读取目录：{item.Name}:{item.PhysicalPath}");
-            }
-
             var directoryContents = _virtualFileProvider?.GetFileInfo($"/ueconfig.json");
             XTrace.WriteLine($"读取ueconfig.json：{Encoding.UTF8.GetString(directoryContents?.CreateReadStream().GetAllBytes()!)}");
-            return JsonHelper.DecodeJson(Encoding.UTF8.GetString(directoryContents?.CreateReadStream().GetAllBytes()!));
+
+            var content = RemoveJsonComments(Encoding.UTF8.GetString(directoryContents?.CreateReadStream().GetAllBytes()!));
+
+            return JsonHelper.DecodeJson(content);
         }
+    }
+
+    private static String RemoveJsonComments(String json)
+    {
+        // 使用正则表达式移除多行注释
+        return Regex.Replace(json, @"/\*.*?\*/", string.Empty, RegexOptions.Singleline);
     }
 
     /// <summary>
