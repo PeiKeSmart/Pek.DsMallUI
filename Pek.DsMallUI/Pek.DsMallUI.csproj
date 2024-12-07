@@ -56,6 +56,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Remove="ueconfig.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -66,6 +70,10 @@
 
   <ItemGroup>
     <Content Include="..\Doc\DH.png" Link="DH.png" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="ueconfig.json" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Readme.MD">
