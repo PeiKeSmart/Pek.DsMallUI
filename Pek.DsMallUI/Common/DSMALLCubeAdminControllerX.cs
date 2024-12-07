@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using NewLife.Collections;
 using NewLife.Cube.Extensions;
 using NewLife.Log;
+using NewLife.Web;
 
 using Pek.NCube;
 
@@ -30,21 +31,16 @@ public class DSMALLCubeAdminControllerX : PekAdminControllerBaseX
     /// <param name="context"></param>
     public override void OnActionExecuting(ActionExecutingContext context)
     {
-        XTrace.WriteLine($"DSMALLCubeAdminControllerX进来了么？");
-
         base.OnActionExecuting(context);
-
-        XTrace.WriteLine($"DSMALLCubeAdminControllerX进来了么1？");
 
         // Ajax请求不需要设置ViewBag
         if (!Request.IsAjaxRequest())
         {
-            var ps = context.ActionArguments.ToNullable();
-            XTrace.WriteLine($"DSMALLCubeAdminControllerX进来了么2？{ps.Count}");
-            foreach (var item in ps)
-            {
-                XTrace.WriteLine($"查看参数   {item.Key}:{item.Value}");
-            }
+            // 默认加上分页给前台
+            var ps = context.ActionArguments.ToNullable();  // ActionArguments取的是Action中定义过的参数，未定义的参数取不到
+            var p = ps["p"] as Pager ?? new Pager();
+
+            HttpContext.Items["PekPage"] = p;
         }
         else
         {
