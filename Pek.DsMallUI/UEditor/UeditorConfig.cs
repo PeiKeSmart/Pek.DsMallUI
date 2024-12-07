@@ -29,7 +29,7 @@ public static class UeditorConfig
         get
         {
             var directoryContents = _virtualFileProvider?.GetFileInfo($"/ueconfig.json");
-            XTrace.WriteLine($"读取ueconfig.json：{Encoding.UTF8.GetString(directoryContents?.CreateReadStream().GetAllBytes()!)}");
+            //XTrace.WriteLine($"读取ueconfig.json：{Encoding.UTF8.GetString(directoryContents?.CreateReadStream().GetAllBytes()!)}");
 
             var content = RemoveJsonComments(Encoding.UTF8.GetString(directoryContents?.CreateReadStream().GetAllBytes()!));
 
