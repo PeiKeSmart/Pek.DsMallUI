@@ -27,6 +27,7 @@ public static class UeditorConfig
     {
         get
         {
+            XTrace.WriteLine($"判断是否为空：{_virtualFileProvider == null}");
             var list = _virtualFileProvider?.GetDirectoryContents("/").ToList();
             foreach(var item in list!)
             {
