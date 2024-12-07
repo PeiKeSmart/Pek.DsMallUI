@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 using NewLife.Collections;
+using NewLife.Cube.Extensions;
+using NewLife.Log;
 
 using Pek.NCube;
 
@@ -21,5 +24,27 @@ public class DSMALLCubeAdminControllerX : PekAdminControllerBaseX
         var html = Pool.StringBuilder.Get();
         html.Append("<script>parent.layer.alert('" + Message + "',{yes:function(index, layero){parent.location.reload();},cancel:function(index, layero){parent.location.reload();}});</script>");
         return Content(html.Return(true), "text/html");
+    }
+
+    /// <summary>动作执行前</summary>
+    /// <param name="context"></param>
+    public override void OnActionExecuting(ActionExecutingContext context)
+    {
+        base.OnActionExecuting(context);
+
+        // Ajax请求不需要设置ViewBag
+        if (!Request.IsAjaxRequest())
+        {
+            var ps = context.ActionArguments.ToNullable();
+
+            foreach(var item in ps)
+            {
+                XTrace.WriteLine($"查看参数   {item.Key}:{item.Value}");
+            }
+        }
+        else
+        {
+
+        }
     }
 }
