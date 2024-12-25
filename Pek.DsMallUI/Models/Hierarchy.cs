@@ -13,7 +13,7 @@ public class Hierarchy
     /// <summary>
     /// 编号
     /// </summary>
-    public Int32 gc_id { get; set; }
+    public Int64 gc_id { get; set; }
 
     /// <summary>
     /// 名称
@@ -23,7 +23,7 @@ public class Hierarchy
     /// <summary>
     /// 父编号
     /// </summary>
-    public Int32 gc_parent_id { get; set; }
+    public Int64 gc_parent_id { get; set; }
 
     /// <summary>
     /// 类型
