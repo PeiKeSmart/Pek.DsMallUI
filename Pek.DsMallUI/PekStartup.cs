@@ -6,7 +6,7 @@ namespace Pek.DsMallUI;
 /// <summary>
 /// 表示应用程序启动时配置服务和中间件的对象
 /// </summary>
-public partial class PekStartup : IDHStartup
+public partial class PekStartup : IPekStartup
 {
     /// <summary>
     /// 配置添加的中间件的使用
@@ -91,6 +91,13 @@ public partial class PekStartup : IDHStartup
     /// </summary>
     /// <param name="application"></param>
     public void AfterAuth(IApplicationBuilder application)
+    {
+    }
+
+    /// <summary>
+    /// 处理数据
+    /// </summary>
+    public void ProcessData()
     {
     }
 
