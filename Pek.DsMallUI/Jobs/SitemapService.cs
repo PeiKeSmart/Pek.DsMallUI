@@ -47,6 +47,10 @@ public class SitemapService : CubeJobBase<SitemapArgument>
             .Header("Signature", Sign)
             .Header("Nonce", Nonce)
             .Header("TimeStamp", TimeStamp)
+            .WhenCatch<Exception>(ex =>
+            {
+                return ex.Message;
+            })
             .ResultStringAsync();
 
         return "OK";
