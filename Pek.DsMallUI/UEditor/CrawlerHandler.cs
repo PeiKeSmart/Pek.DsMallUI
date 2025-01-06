@@ -11,7 +11,7 @@ public class CrawlerHandler(HttpContext context) : Handler(context)
     /// <returns></returns>
     public override async Task<String> Process()
     {
-        var form = await Request.ReadFormAsync();
+        var form = await Request.ReadFormAsync().ConfigureAwait(false);
         String[]? sources = form["source[]"];
         if (sources?.Length > 0 || sources?.Length <= 10)
         {
@@ -27,7 +27,7 @@ public class CrawlerHandler(HttpContext context) : Handler(context)
                         source = t.Result.SourceUrl,
                         url = t.Result.ServerUrl
                     });
-                }))
+                }).ConfigureAwait(false))
             });
         }
 

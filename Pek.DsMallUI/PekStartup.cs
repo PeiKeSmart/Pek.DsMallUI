@@ -32,9 +32,9 @@ public partial class PekStartup : IPekStartup
     /// <param name="options">虚拟文件配置</param>
     public void ConfigureVirtualFileSystem(DHVirtualFileSystemOptions options)
     {
-        //XTrace.WriteLine($"配置虚拟文件系统");
+        //XTrace.WriteLine($"[PekStartup.ConfigureVirtualFileSystem]配置虚拟文件系统");
         options.FileSets.AddEmbedded<PekStartup>(typeof(PekStartup).Namespace);
-        //XTrace.WriteLine($"配置虚拟文件系统：{options.FileSets.ToJson()}");
+        //XTrace.WriteLine($"[PekStartup.ConfigureVirtualFileSystem]配置虚拟文件系统：{options.FileSets.ToJson()}");
         // options.FileSets.Add(new EmbeddedFileSet(item.Assembly, item.Namespace));
     }
 

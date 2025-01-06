@@ -166,8 +166,8 @@ public class UploadController : PekBaseControllerX
         if (dir.IsNullOrWhiteSpace()) return;
 
         Directory.CreateDirectory(dir);
-        await using var fs = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-        await file.CopyToAsync(fs);
+        using var fs = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+        await file.CopyToAsync(fs).ConfigureAwait(false);
     }
 
     #endregion
@@ -255,7 +255,7 @@ public class UploadController : PekBaseControllerX
             }
         }
 
-        String result = await action.Process();
+        String result = await action.Process().ConfigureAwait(false);
         return Content(result, MimeTypes.ApplicationJson);
     }
 
