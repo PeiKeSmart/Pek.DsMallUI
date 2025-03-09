@@ -12,7 +12,7 @@ namespace Pek.DsMallUI;
 /// <summary>
 /// 后台控制器基类
 /// </summary>
-public class DSMALLCubeAdminControllerX : PekAdminControllerBaseX
+public class PekCubeAdminControllerX : PekAdminControllerBaseX
 {
     /// <summary>
     /// 消息跳转
