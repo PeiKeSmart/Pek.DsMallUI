@@ -257,14 +257,6 @@ input.readonly , textarea.readonly, textarea.readonly:focus ,textarea.readonly:h
 .admincp-header{width: 100%; position: relative; z-index: 2;margin: 0;height:55px;background: linear-gradient(90deg,#0f6ad7,#00ced4);*background:#0f6ad7;background:#0f6ad7\9;}
 .admincp-header .logo{width:210px;height:55px;padding:0;float: left;overflow:hidden;}
 .admincp-header .logo img{max-height:55px;}
-@media screen and (max-width: 1200px) {
-    a{
-        font-size: 10px !important;
-    }
-    li>span{
-        font-size: 10px !important;
-    }
-}
 .admincp-header .navbar li{position:relative;float:left;display:block;transition:all linear .2s;height:55px;}
 .admincp-header .navbar li:after{content:" ";display: block;border-right: 1px solid rgba(255,255,255,0.25);height: 10px;position: absolute;top:22px;}
 .admincp-header .navbar li>a{position:relative;display:block;padding:0 20px;color:#fff;font-size:15px;line-height:55px}
