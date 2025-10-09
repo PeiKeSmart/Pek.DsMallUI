@@ -84,5 +84,8 @@
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Areas\Controllers\" />
+  </ItemGroup>
 
 </Project>

@@ -1,0 +1,167 @@
+﻿@{
+    Layout = null;
+    var adminarea = Pek.NCubeUI.Areas.Admin.AdminArea.AreaName.ToLower();
+    var bgRnd = NewLife.Security.Rand.Next(1, 9);
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>@T("登录") - @T(NewLife.Common.SysConfig.Current.DisplayName)@T("系统后台")</title>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="stylesheet" href="~/static/admin/css/admin.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/static/plugins/js/jqueryui/jquery-ui.min.css" asp-append-version="true">
+    <script src="~/static/plugins/jquery214.min.js" asp-append-version="true"></script>
+    <script src="~/static/plugins/jquery.validate.min.js" asp-append-version="true"></script>
+    <script src="~/static/plugins/jquery.cookie.js" asp-append-version="true"></script>
+    <script src="~/static/plugins/common.js" asp-append-version="true"></script>
+    <script src="~/static/admin/js/admin.js" asp-append-version="true"></script>
+    <script src="~/static/plugins/js/jqueryui/jquery-ui.min.js" asp-append-version="true"></script>
+    <script src="~/static/plugins/js/jqueryui/jquery.ui.datepicker-zh-CN.js" asp-append-version="true"></script>
+    <script src="~/static/plugins/perfect-scrollbar.min.js" asp-append-version="true"></script>
+    <script src="~/static/plugins/layer/layer.js" asp-append-version="true"></script>
+    <script src="~/static/plugins/js/crypto/crypto.js" asp-append-version="true"></script>
+    <script src="~/static/plugins/js/layui/layui.all.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="~/static/plugins/js/layui/css/layui.css" asp-append-version="true"></link>
+    <script src="~/static/js/Storage.js" asp-append-version="true"></script>
+    <script type="text/javascript">
+        var HOMESITEURL = "@DHSetting.Current.CurDomainUrl";
+
+        var sslEnabled = @DHSetting.Current.SslEnabled;
+        var currentURL = window.location.href;
+
+        if (sslEnabled == 1) {
+            if (currentURL.startsWith("http://")) {
+                var newURL = currentURL.replace(/http:\/\//, 'https://');
+                window.location.href = newURL;
+            }
+        }
+        else if (sslEnabled == 2) {
+            if (currentURL.startsWith("https://")) {
+                var newURL = currentURL.replace(/https:\/\//, 'http://');
+                window.location.href = newURL;
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-image: url('/static/admin/images/wallpage/bg_@(bgRnd).jpg');
+            background-size: cover;
+        }
+    </style>
+</head>
+<body>
+    <div id="append_parent"></div>
+    <div id="ajaxwaitid"></div>
+
+    <div class="login">
+        <div class="login_body">
+            <div class="login_header">
+                <img src="~/static/admin/images/logo.png" />
+            </div>
+            <div class="login_content">
+                <form method="post" id="login_form">
+                    <div class="form-group">
+                        <input type="text" id="username" name="username" placeholder="@T("用户名/邮箱/手机/编码")" required class="text">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="password" name="password" placeholder="@T("密码")" required class="text">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="checkcode" name="checkcode" placeholder="@T("图形验证码")" required class="text" style="width:60%;float:left;">
+                        <img src="@DHSetting.Current.CaptChaUrl" style="width:30%;height:38px;" id="change_captcha" />
+                    </div>
+                    <div class="form-group">
+                        <input type="hidden" name="keeplogin" value="true" />
+                        <input type="button" class="btn" id="login_btn" value="@T("登录")" style="width:100%" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(function () {
+            if (window.self !== window.top) {
+                var currentPath = window.location.pathname;
+                window.top.location.href = currentPath;
+            }
+
+            $(document).keyup(function (event) {
+                if (event.keyCode == 13) {
+                    login_form();
+                }
+            });
+
+            $('#login_btn').on('click', function () {
+                login_form();
+            });
+             /** 计算hash  */
+            const generateHash =  function (str) {
+                const pwdStr = str.match(/password=([^&]+)/);
+                const hash = 'password=' + CryptoJS.MD5(pwdStr[1]).toString();
+                const newStr = str.replace(/password=([^&]+)/, hash.toUpperCase());
+                return newStr;
+            };
+
+            function login_form() {
+                if ($('#username').val().length == 0) {
+                    layer.msg('@T("账号不能为空")');
+                    return;
+                }
+
+                if ($('#password').val().length == 0) {
+                    layer.msg('@T("密码不能为空")');
+                    return;
+                }
+
+                if ($('#checkcode').val().length == 0) {
+                    layer.msg('@T("验证码不能为空")');
+                    return;
+                }
+
+                var _form = generateHash($('#login_form').serialize());
+                // console.log(_form);
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("Login", "Login")",
+                    data: _form,
+                    dataType: 'json',
+                    success: function (res) {
+                        if (res.success) {
+                            var now = new Date().getTime(); // 获取当前时间戳
+
+                            if (res.data != null) {
+                                var seconds = res.data.RefreshUtcExpires - now; // 计算时间戳与当前时间之间的毫秒数
+
+                                const storage = new Storage();  // new Storage(3 * 1000)
+
+                                storage.set("remember", 365 * 24 * 60 * 60, seconds);
+
+                                storage.set("AccessToken", res.data.AccessToken, seconds);
+                                storage.set("RefreshToken", res.data.RefreshToken, seconds);
+                                storage.set("AccessTokenUtcExpires", res.data.AccessTokenUtcExpires, seconds);
+                                storage.set("RefreshUtcExpires", res.data.RefreshUtcExpires, seconds);
+                            }
+
+                            layer.msg('@T("登录成功")', { time: 1500 }, function () {
+                                location.href = res.locate;
+                            });
+                        } else {
+                            layer.msg(res.msg, { time: 1500 }, function () {
+                                $('#change_captcha').attr('src', '@(DHSetting.Current.CaptChaUrl)?' + (new Date().getTime()));
+                                $('#password').val("");
+                                $('#checkcode').val("");
+                            });
+                        }
+                    }
+                });
+            }
+
+            $('#change_captcha').click(function () {
+                $(this).attr('src', '@(DHSetting.Current.CaptChaUrl)?' + (new Date().getTime()));
+            });
+        });
+    </script>
+</body>
+</html>
