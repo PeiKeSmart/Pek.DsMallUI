@@ -85,7 +85,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Areas\Controllers\" />
+    <Folder Include="Areas\Admin\Controllers\" />
   </ItemGroup>
 
 </Project>
