@@ -1,4 +1,7 @@
-﻿using Pek.Infrastructure;
+﻿using Pek.DsMallUI.Areas.Admin.Controllers;
+using Pek.Infrastructure;
+using Pek.NCubeUI;
+using Pek.NCubeUI.Areas.Admin;
 using Pek.VirtualFileSystem;
 
 namespace Pek.DsMallUI;
@@ -51,7 +54,7 @@ public partial class PekStartup : IPekStartup
     /// </summary>
     public void ConfigureArea()
     {
-
+        AreaBase.SetRoute<ConfigController>(AdminArea.AreaName);
     }
 
     /// <summary>
