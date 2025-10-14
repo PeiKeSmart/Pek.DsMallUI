@@ -9,6 +9,20 @@
 
 	// 事件
 	await eventPublisher.PublishAsync(new PageRenderingEvent(PekHtml));
+
+	// 定义菜单项集合
+	var menuItems = new List<(String Action, String Title, Boolean IsEnabled)>
+	{
+		("Index", T("站点设置").ToString(), true),
+		("Verified", "实名认证配置", true),
+		("", "防灌水设置", false),
+		("", "站内IM设置", false),
+		("Auto", T("自动执行时间设置").ToString(), true),
+		("CompanyInfo", T("企业信息设置").ToString(), false)
+	};
+
+	// 获取当前 Action
+	var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
 }
 <style asp-location="true">
 	.layui-tab-title {
@@ -29,12 +43,18 @@
 				<h5></h5>
 			</div>
 			<ul class="tab-base ds-row">
-				<li><a href="@Url.Action("Index")" class="current"><span>@T("站点设置")</span></a></li>
-				<li><a href="@Url.Action("Verified")"><span>实名认证配置</span></a></li>
-				@*<li><a href="/index.php/admin/config/dump.html"><span>防灌水设置</span></a></li>
-                    <li><a href="/index.php/admin/config/im.html"><span>站内IM设置</span></a></li>*@
-				<li><a href="@Url.Action("Auto")"><span>@T("自动执行时间设置")</span></a></li>
-@* 				<li><a href="@Url.Action("CompanyInfo")"><span>@T("企业信息设置")</span></a></li> *@
+				@foreach (var item in menuItems)
+				{
+					if (item.IsEnabled)
+					{
+						var cssClass = String.Equals(item.Action, currentAction, StringComparison.OrdinalIgnoreCase) ? "current" : "";
+						<li><a href="@Url.Action(item.Action)" class="@cssClass"><span>@item.Title</span></a></li>
+					}
+					else
+					{
+						@* <li><a href="#"><span>@item.Title</span></a></li> *@
+					}
+				}
 			</ul>
 		</div>
 	</div>
