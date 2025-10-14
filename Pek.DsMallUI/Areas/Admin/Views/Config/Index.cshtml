@@ -1,9 +1,14 @@
-﻿@{
+﻿@inject IEventPublisher eventPublisher
+
+@{
 	// script
 	PekHtml.AppendScriptParts(ResourceLocation.Head, "/static/plugins/js/layui/layui.js");
 
 	// css
 	PekHtml.AppendCssFileParts("/static/plugins/js/layui/css/layui.css");
+
+	// 事件
+	await eventPublisher.PublishAsync(new PageRenderingEvent(PekHtml));
 }
 <style asp-location="true">
 	.layui-tab-title {
