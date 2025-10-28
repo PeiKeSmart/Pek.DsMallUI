@@ -1,439 +1,542 @@
-﻿@inject IEventPublisher eventPublisher
-
+﻿@using Pek.Configs
 @{
-	// script
-	PekHtml.AppendScriptParts(ResourceLocation.Head, "/static/plugins/js/layui/layui.js");
+    // script
+    PekHtml.AppendScriptParts(ResourceLocation.Head, "/static/plugins/js/layui/layui.js");
 
-	// css
-	PekHtml.AppendCssFileParts("/static/plugins/js/layui/css/layui.css");
+    // css
+    PekHtml.AppendCssFileParts("/static/plugins/js/layui/css/layui.css");
 
-	// 事件
-	await eventPublisher.PublishAsync(new PageRenderingEvent(PekHtml));
-
-	// 定义菜单项集合
-	var menuItems = new List<(String Action, String Title, Boolean IsEnabled)>
-	{
-		("Index", T("站点设置").ToString(), true),
-		("Verified", "实名认证配置", true),
-		("", "防灌水设置", false),
-		("", "站内IM设置", false),
-		("Auto", T("自动执行时间设置").ToString(), true),
-		("CompanyInfo", T("企业信息设置").ToString(), false)
-	};
-
-	// 获取当前 Action
-	var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var IsAllowSwagger = ConfigFileHelper.GetAppSetting("SwaggerOption:Enabled", "Settings/Swagger.json").ToBoolean();
+    XTrace.WriteLine("IsAllowSwagger===" + IsAllowSwagger);
 }
 <style asp-location="true">
-	.layui-tab-title {
-		width: 95%;
-		margin: 0 auto;
-	}
+    .layui-tab-title {
+        width: 95%;
+        margin: 0 auto;
+    }
 
-	.layui-tab.layui-tab-brief.Lan {
-		box-shadow: 0 0 5px #AAA inset;
-		box-shadow: 0 0 5px #AAA;
-	}
+    .layui-tab.layui-tab-brief.Lan {
+        box-shadow: 0 0 5px #AAA inset;
+        box-shadow: 0 0 5px #AAA;
+    }
 </style>
 <div class="page">
-	<div class="fixed-bar">
-		<div class="item-title">
-			<div class="subject">
-				<h3>@T("站点设置")</h3>
-				<h5></h5>
-			</div>
-			<ul class="tab-base ds-row">
-				@foreach (var item in menuItems)
-				{
-					if (item.IsEnabled)
-					{
-						var cssClass = String.Equals(item.Action, currentAction, StringComparison.OrdinalIgnoreCase) ? "current" : "";
-						<li><a href="@Url.Action(item.Action)" class="@cssClass"><span>@item.Title</span></a></li>
-					}
-					else
-					{
-						@* <li><a href="#"><span>@item.Title</span></a></li> *@
-					}
-				}
-			</ul>
-		</div>
-	</div>
-	@using (Html.BeginForm("UpdateBase", "Config", FormMethod.Post, new { enctype = "multipart/form-data", name = "form1" }))
-	{
-		<div class="layui-tab layui-tab-brief  Lan" lay-filter="docDemoTabBrief">
-			@if (LocalizationSettings.Current.IsEnable)
-			{
-				<ul class="layui-tab-title">
-					<li class="layui-this">@T("标准"):</li>
-					@foreach (var item in (IEnumerable<DH.Entity.Language>)ViewBag.LanguageList)
-					{
-						<li>@item?.DisplayName</li>
-					}
-				</ul>
-			}
-			<div class="layui-tab-content">
-				<div class="layui-tab-item layui-show">
-					<div class="ncap-form-default">
-						<dl>
-							<dt>@T("网站名称")</dt>
-							<dd>
-								<input id="SiteName" name="SiteName" value="@ViewBag.Model.SiteName" class="input-txt" type="text">
-								<span class="err"></span>
-							</dd>
-						</dl>
-						<dl>
-							<dt>@T("网站Seo标题")</dt>
-							<dd>
-								<input id="SeoTitle" name="SeoTitle" value="@ViewBag.Model.SeoTitle" class="input-txt" type="text">
-								<span class="err"></span>
-							</dd>
-						</dl>
-						<dl>
-							<dt>@T("网站Seo关键字")</dt>
-							<dd>
-								<input id="SeoKey" name="SeoKey" value="@ViewBag.Model.SeoKey" class="input-txt" type="text">
-								<span class="err"></span>
-							</dd>
-						</dl>
-						<dl>
-							<dt>@T("网站Seo描述")</dt>
-							<dd>
-								<input id="SeoDescribe" name="SeoDescribe" value="@ViewBag.Model.SeoDescribe" class="input-txt" type="text">
-								<span class="err"></span>
-							</dd>
-						</dl>
-						<dl>
-							<dt>@T("ICP备案号")</dt>
-							<dd>
-								<input id="registration" name="registration" value="@ViewBag.Model.Registration" class="input-txt" type="text">
-								<span class="err"></span>
-							</dd>
-						</dl>
-						<dl>
-							<dt>@T("版权")</dt>
-							<dd>
-								<input id="copyright" name="copyright" value="@ViewBag.Model.SiteCopyright" class="input-txt" type="text">
-								<span class="err"></span>
-							</dd>
-						</dl>
-					</div>
-				</div>
+    <div class="fixed-bar">
+        <div class="item-title">
+            <div class="subject">
+                <h3>@T("站点设置")</h3>
+                <h5></h5>
+            </div>
+            <ul class="tab-base ds-row">
+                <li><a href="@Url.Action("Index")" class="current"><span>@T("站点设置")</span></a></li>
+                <li><a href="@Url.Action("Verified")"><span>@T("实名认证配置")</span></a></li>
+                @*<li><a href="/index.php/admin/config/dump.html"><span>防灌水设置</span></a></li>
+                    <li><a href="/index.php/admin/config/im.html"><span>站内IM设置</span></a></li>*@
+                <li><a href="@Url.Action("Auto")"><span>@T("自动执行时间设置")</span></a></li>
+            </ul>
+        </div>
+    </div>
+    @using (Html.BeginForm("UpdateBase", "Config", FormMethod.Post, new { enctype = "multipart/form-data", name = "form1" }))
+    {
+        <div class="layui-tab layui-tab-brief  Lan" lay-filter="docDemoTabBrief">
+            @if (LocalizationSettings.Current.IsEnable)
+            {
+                <ul class="layui-tab-title">
+                    <li class="layui-this">@T("标准"):</li>
+                    @foreach (var item in (IEnumerable<DH.Entity.Language>)ViewBag.LanguageList)
+                    {
+                        <li>@item?.DisplayName</li>
+                    }
+                </ul>
+            }
+            <div class="layui-tab-content">
+                <div class="layui-tab-item layui-show">
+                    <div class="ncap-form-default">
+                        <dl>
+                            <dt>@T("网站名称")</dt>
+                            <dd>
+                                <input id="SiteName" name="SiteName" value="@ViewBag.Model.SiteName" class="input-txt" type="text">
+                                <span class="err"></span>
+                            </dd>
+                        </dl>
+                        <dl>
+                            <dt>@T("网站Seo标题")</dt>
+                            <dd>
+                                <input id="SeoTitle" name="SeoTitle" value="@ViewBag.Model.SeoTitle" class="input-txt" type="text">
+                                <span class="err"></span>
+                            </dd>
+                        </dl>
+                        <dl>
+                            <dt>@T("网站Seo关键字")</dt>
+                            <dd>
+                                <input id="SeoKey" name="SeoKey" value="@ViewBag.Model.SeoKey" class="input-txt" type="text">
+                                <span class="err"></span>
+                            </dd>
+                        </dl>
+                        <dl>
+                            <dt>@T("网站Seo描述")</dt>
+                            <dd>
+                                <input id="SeoDescribe" name="SeoDescribe" value="@ViewBag.Model.SeoDescribe" class="input-txt" type="text">
+                                <span class="err"></span>
+                            </dd>
+                        </dl>
+                        <dl>
+                            <dt>@T("ICP备案号")</dt>
+                            <dd>
+                                <input id="registration" name="registration" value="@ViewBag.Model.Registration" class="input-txt" type="text">
+                                <span class="err"></span>
+                            </dd>
+                        </dl>
+                        <dl>
+                            <dt>@T("版权")</dt>
+                            <dd>
+                                <input id="copyright" name="copyright" value="@ViewBag.Model.SiteCopyright" class="input-txt" type="text">
+                                <span class="err"></span>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
 
-				@if (LocalizationSettings.Current.IsEnable)
-				{
-					@foreach (var item in (IEnumerable<DH.Entity.Language>)ViewBag.LanguageList)
-					{
-						var modelLan = DH.Entity.SiteInfoLan.FindBySIdAndLId(1, item.Id, false);
+                @if (LocalizationSettings.Current.IsEnable)
+                {
+                    @foreach (var item in (IEnumerable<DH.Entity.Language>)ViewBag.LanguageList)
+                    {
+                        var modelLan = DH.Entity.SiteInfoLan.FindBySIdAndLId(1, item.Id, false);
 
-						<div class="layui-tab-item">
-							<div class="ncap-form-default">
-								<dl>
-									<dt>@T("网站名称")</dt>
-									<dd>
-										<input name="[@item.Id].SiteName" value="@modelLan.SiteName" class="input-txt" type="text">
-										<span class="err"></span>
-									</dd>
-								</dl>
-								<dl>
-									<dt>@T("网站Seo标题")</dt>
-									<dd>
-										<input name="[@item.Id].SeoTitle" value="@modelLan.SeoTitle" class="input-txt" type="text">
-										<span class="err"></span>
-									</dd>
-								</dl>
-								<dl>
-									<dt>@T("网站Seo关键字")</dt>
-									<dd>
-										<input name="[@item.Id].SeoKey" value="@modelLan.SeoKey" class="input-txt" type="text">
-										<span class="err"></span>
-									</dd>
-								</dl>
-								<dl>
-									<dt>@T("网站Seo描述")</dt>
-									<dd>
-										<input name="[@item.Id].SeoDescribe" value="@modelLan.SeoDescribe" class="input-txt" type="text">
-										<span class="err"></span>
-									</dd>
-								</dl>
-								<dl>
-									<dt>@T("ICP备案号")</dt>
-									<dd>
-										<input name="[@item.Id].Registration" value="@modelLan.Registration" class="input-txt" type="text">
-										<span class="err"></span>
-									</dd>
-								</dl>
-								<dl>
-									<dt>@T("版权")</dt>
-									<dd>
-										<input name="[@item.Id].SiteCopyright" value="@modelLan.SiteCopyright" class="input-txt" type="text">
-										<span class="err"></span>
-									</dd>
-								</dl>
-							</div>
-						</div>
-					}
-				}
-			</div>
-		</div>
+                        <div class="layui-tab-item">
+                            <div class="ncap-form-default">
+                                <dl>
+                                    <dt>@T("网站名称")</dt>
+                                    <dd>
+                                        <input name="[@item.Id].SiteName" value="@modelLan.SiteName" class="input-txt" type="text">
+                                        <span class="err"></span>
+                                    </dd>
+                                </dl>
+                                <dl>
+                                    <dt>@T("网站Seo标题")</dt>
+                                    <dd>
+                                        <input name="[@item.Id].SeoTitle" value="@modelLan.SeoTitle" class="input-txt" type="text">
+                                        <span class="err"></span>
+                                    </dd>
+                                </dl>
+                                <dl>
+                                    <dt>@T("网站Seo关键字")</dt>
+                                    <dd>
+                                        <input name="[@item.Id].SeoKey" value="@modelLan.SeoKey" class="input-txt" type="text">
+                                        <span class="err"></span>
+                                    </dd>
+                                </dl>
+                                <dl>
+                                    <dt>@T("网站Seo描述")</dt>
+                                    <dd>
+                                        <input name="[@item.Id].SeoDescribe" value="@modelLan.SeoDescribe" class="input-txt" type="text">
+                                        <span class="err"></span>
+                                    </dd>
+                                </dl>
+                                <dl>
+                                    <dt>@T("ICP备案号")</dt>
+                                    <dd>
+                                        <input name="[@item.Id].Registration" value="@modelLan.Registration" class="input-txt" type="text">
+                                        <span class="err"></span>
+                                    </dd>
+                                </dl>
+                                <dl>
+                                    <dt>@T("版权")</dt>
+                                    <dd>
+                                        <input name="[@item.Id].SiteCopyright" value="@modelLan.SiteCopyright" class="input-txt" type="text">
+                                        <span class="err"></span>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
 
-		<div class="ncap-form-default">
-			<dl>
-				<dt>@T("系统名称")</dt>
-				<dd>
-					<input id="DisplayName" name="DisplayName" value="@NewLife.Common.SysConfig.Current.DisplayName" class="input-txt" type="text">
-					<span class="err"></span>
-					<p class="notic">@T("系统名称, 将显示在后台顶部欢迎信息等位置")</p>
-				</dd>
-			</dl>
-			<dl>
-				<dt>@T("网站域名")</dt>
-				<dd>
-					<input id="CurDomainUrl" name="CurDomainUrl" value="@DHSetting.Current.CurDomainUrl" class="input-txt" type="text">
-					<span class="err"></span>
-					<p class="notic">@T("网站的域名, 必须http://或者https://开头")</p>
-				</dd>
-			</dl>
-			<dl>
-				<dt>@T("公司名称")</dt>
-				<dd>
-					<input id="companyname" name="companyname" value="@NewLife.Common.SysConfig.Current.Company" class="input-txt" type="text">
-					<span class="err"></span>
-					<p class="notic">@T("公司名称, 将会显示在底部等位置")</p>
-				</dd>
-			</dl>
-			<dl>
-				<dt>@T("客服联系电话")</dt>
-				<dd>
-					<input id="CustomerTel" name="CustomerTel" value="@ViewBag.Model.SiteTel" class="input-txt" type="text">
-					<span class="err"></span>
-					<p class="notic">@T("客服联系电话,将会显示在头部或者底部等位置")</p>
-				</dd>
-			</dl>
-			<dl>
-				<dt>@T("前台页头")</dt>
-				<dd>
-					<textarea name="pagefoot" id="pagefoot">@ViewBag.Model.HeaderCustomHtml</textarea>
-					<span class="err"></span>
-				</dd>
-			</dl>
-			<dl>
-				<dt>@T("前台页脚")</dt>
-				<dd>
-					<textarea name="pagefoot" id="pagefoot">@ViewBag.Model.FooterCustomHtml</textarea>
-					<span class="err"></span>
-				</dd>
-			</dl>
-			<dl>
-				<dt>@T("流量统计配置")</dt>
-				<dd>
-					<textarea name="Statistical" id="Statistical">@DHSetting.Current.Statistical</textarea>
-					<span class="err"></span>
-				</dd>
-			</dl>
-			<dl>
-				<dt>@T("会话超时")</dt>
-				<dd>
-					<input id="sessiontimeout" name="sessiontimeout" value="@DHSetting.Current.SessionTimeout" class="input-txt" type="text">
-					<span class="err"></span>
-					<p class="notic">@T("单点登录后会话超时时间, 该时间内可借助Cookie登录，默认0s")</p>
-				</dd>
-			</dl>
-			<dl>
-				<dt>@T("刷新用户周期")</dt>
-				<dd>
-					<input id="refreshuserperiod" name="refreshuserperiod" value="@DHSetting.Current.RefreshUserPeriod" class="input-txt" type="text">
-					<span class="err"></span>
-					<p class="notic">@T("该周期内多次SSO登录只拉取一次用户信息，默认600秒")</p>
-				</dd>
-			</dl>
-			<dl>
-				<dt>@T("允许密码登录")</dt>
-				<dd>
-					<div class="onoff">
-						<label for="AllowLogin1" class="cb-enable @(DHSetting.Current.AllowLogin ? "selected" : "")">@T("开启")</label>
-						<label for="AllowLogin0" class="cb-disable @(!DHSetting.Current.AllowLogin ? "selected" : "")">@T("关闭")</label>
-						<input id="AllowLogin1" name="AllowLogin" value="1" type="radio" @(DHSetting.Current.AllowLogin? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
-						<input id="AllowLogin0" name="AllowLogin" value="0" type="radio" @(!DHSetting.Current.AllowLogin ? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
-					</div>
-					<p class="notic">@T("允许密码/手机/扫码登录。允许输入用户名密码/手机号/扫码进行登录")</p>
-				</dd>
-			</dl>
-			<dl>
-				<dt>@T("允许自动注册")</dt>
-				<dd>
-					<div class="onoff">
-						<label for="AutoRegister1" class="cb-enable @(DHSetting.Current.AutoRegister ? "selected" : "")">@T("开启")</label>
-						<label for="AutoRegister0" class="cb-disable @(!DHSetting.Current.AutoRegister ? "selected" : "")">@T("关闭")</label>
-						<input id="AutoRegister1" name="AutoRegister" value="1" type="radio" @(DHSetting.Current.AutoRegister? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
-						<input id="AutoRegister0" name="AutoRegister" value="0" type="radio" @(!DHSetting.Current.AutoRegister ? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
-					</div>
-					<p class="notic">@T("SSO登录后，如果本地未登录，自动注册新用户。全局设置和OAuth应用设置只要有一个启用则表示使用")</p>
-				</dd>
-			</dl>
-			<dl>
-				<dt>@T("使用Sso角色")</dt>
-				<dd>
-					<div class="onoff">
-						<label for="UseSsoRole1" class="cb-enable @(DHSetting.Current.UseSsoRole ? "selected" : "")">@T("开启")</label>
-						<label for="UseSsoRole0" class="cb-disable @(!DHSetting.Current.UseSsoRole ? "selected" : "")">@T("关闭")</label>
-						<input id="UseSsoRole1" name="UseSsoRole" value="1" type="radio" @(DHSetting.Current.UseSsoRole? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
-						<input id="UseSsoRole0" name="UseSsoRole" value="0" type="radio" @(!DHSetting.Current.UseSsoRole ? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
-					</div>
-					<p class="notic">@T("SSO登录后继续使用SSO角色，默认true；否则使用DefaultRole")</p>
-				</dd>
-			</dl>
-			<dl>
-				<dt>@T("注销所有系统")</dt>
-				<dd>
-					<div class="onoff">
-						<label for="LogoutAll1" class="cb-enable @(DHSetting.Current.LogoutAll ? "selected" : "")">@T("开启")</label>
-						<label for="LogoutAll0" class="cb-disable @(!DHSetting.Current.LogoutAll ? "selected" : "")">@T("关闭")</label>
-						<input id="LogoutAll1" name="LogoutAll" value="1" type="radio" @(DHSetting.Current.LogoutAll? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
-						<input id="LogoutAll0" name="LogoutAll" value="0" type="radio" @(!DHSetting.Current.LogoutAll ? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
-					</div>
-					<p class="notic">@T("默认false仅注销本系统，true时注销SsoServer。SsoServer不要开启")</p>
-				</dd>
-			</dl>
-			<dl>
-				<dt>@T("启用多语言")</dt>
-				<dd>
-					<div class="onoff">
-						<label for="IsEnableLanguage1" class="cb-enable @(LocalizationSettings.Current.IsEnable ? "selected" : "")">@T("开启")</label>
-						<label for="IsEnableLanguage0" class="cb-disable @(!LocalizationSettings.Current.IsEnable ? "selected" : "")">@T("关闭")</label>
-						<input id="IsEnableLanguage1" name="IsEnableLanguage" value="1" type="radio" @(LocalizationSettings.Current.IsEnable? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
-						<input id="IsEnableLanguage0" name="IsEnableLanguage" value="0" type="radio" @(!LocalizationSettings.Current.IsEnable ? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
-					</div>
-				</dd>
-			</dl>
-			<dl>
-				<dt>@T("启用SEO友好URL")</dt>
-				<dd>
-					<div class="onoff">
-						<label for="SeoFriendlyUrlsForLanguagesEnabled1" class="cb-enable @(LocalizationSettings.Current.SeoFriendlyUrlsForLanguagesEnabled ? "selected" : "")">@T("开启")</label>
-						<label for="SeoFriendlyUrlsForLanguagesEnabled0" class="cb-disable @(!LocalizationSettings.Current.SeoFriendlyUrlsForLanguagesEnabled ? "selected" : "")">@T("关闭")</label>
-						<input id="SeoFriendlyUrlsForLanguagesEnabled1" name="SeoFriendlyUrlsForLanguagesEnabled" value="1" type="radio" @(LocalizationSettings.Current.SeoFriendlyUrlsForLanguagesEnabled? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
-						<input id="SeoFriendlyUrlsForLanguagesEnabled0" name="SeoFriendlyUrlsForLanguagesEnabled" value="0" type="radio" @(!LocalizationSettings.Current.SeoFriendlyUrlsForLanguagesEnabled ? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
-					</div>
-					<p class="notic">@T("是否启用多语言的SEO友好URL，启用后在地址栏会有语言路径如cn/、en/")</p>
-				</dd>
-			</dl>
-			<dl>
-				<dt>@T("SEO标题格式")</dt>
-				<dd>
-					<label class="radio-label">
-						<i class="radio-common @(DHSetting.Current.PageTitleSeoAdjustment == 1 ? "selected" : "")">
-							<input type="radio" value="1" name="PageTitleSeoAdjustment" @(DHSetting.Current.PageTitleSeoAdjustment == 1 ? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
-						</i>
-						<span>网站名称在后</span>
-					</label>
-					<label class="radio-label">
-						<i class="radio-common @(DHSetting.Current.PageTitleSeoAdjustment == 0 ? "selected" : "")">
-							<input type="radio" value="0" name="PageTitleSeoAdjustment" @(DHSetting.Current.PageTitleSeoAdjustment == 0 ? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
-						</i>
-						<span>网站名称在前</span>
-					</label>
-					<p class="notic">@T("页面标题SEO调整。0为网页标题在网站名称后，1为网页标题在网站名称前")</p>
-				</dd>
-			</dl>
-			<dl>
-				<dt>@T("启用Url后缀")</dt>
-				<dd>
-					<div class="onoff">
-						<label for="IsAllowUrlSuffix1" class="cb-enable @(DHSetting.Current.IsAllowUrlSuffix ? "selected" : "")">@T("开启")</label>
-						<label for="IsAllowUrlSuffix0" class="cb-disable @(!DHSetting.Current.IsAllowUrlSuffix ? "selected" : "")">@T("关闭")</label>
-						<input id="IsAllowUrlSuffix1" name="IsAllowUrlSuffix" value="1" type="radio" @(DHSetting.Current.IsAllowUrlSuffix? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
-						<input id="IsAllowUrlSuffix0" name="IsAllowUrlSuffix" value="0" type="radio" @(!DHSetting.Current.IsAllowUrlSuffix ? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
-					</div>
-					<p class="notic">@T("启用Url后缀，则前台设置了路由的URL会有.html等后缀。设置之后需要重启网站才能生效")</p>
-				</dd>
-			</dl>
-			<dl>
-				<dt>@T("Url后缀")</dt>
-				<dd>
-					<input id="UrlSuffix" name="UrlSuffix" value="@DHSetting.Current.UrlSuffix" class="input-txt" type="text">
-					<span class="err"></span>
-					<p class="notic">@T("Url后缀，当启用时Url路径中会根据规则带有后缀。为SEO伪静态使用")</p>
-				</dd>
-			</dl>
-			<dl>
-				<dt>@T("是否生成静态网页")</dt>
-				<dd>
-					<div class="onoff">
-						<label for="IsHtmlStaticDevelopmentMode1" class="cb-enable @(!DHSetting.Current.IsHtmlStaticDevelopmentMode ? "selected" : "")">@T("开启")</label>
-						<label for="IsHtmlStaticDevelopmentMode0" class="cb-disable @(DHSetting.Current.IsHtmlStaticDevelopmentMode ? "selected" : "")">@T("关闭")</label>
-						<input id="IsHtmlStaticDevelopmentMode1" name="IsHtmlStaticDevelopmentMode" value="1" type="radio" @(!DHSetting.Current.IsHtmlStaticDevelopmentMode ? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
-						<input id="IsHtmlStaticDevelopmentMode0" name="IsHtmlStaticDevelopmentMode" value="0" type="radio" @(DHSetting.Current.IsHtmlStaticDevelopmentMode? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
-					</div>
-					<p class="notic">@T("启用后动态页面转静态页面")</p>
-				</dd>
-			</dl>
-			<dl>
-				<dt>@T("静态网页过期时间")</dt>
-				<dd>
-					<input id="HtmlStaticExpireMinutes" name="HtmlStaticExpireMinutes" value="@DHSetting.Current.HtmlStaticExpireMinutes" class="input-txt" type="text">
-					<span class="err"></span>
-					<p class="notic">@T("动态页面转静态页面过期时间")</p>
-				</dd>
-			</dl>
-			<dl>
-				<dt>@T("签名校验Token")</dt>
-				<dd>
-					<input id="ServerToken" name="ServerToken" value="@DHSetting.Current.ServerToken" class="input-txt" type="text">
-					<span class="err"></span>
-					<p class="notic">@T("接口请求时检验Token")</p>
-				</dd>
-			</dl>
-			<dl>
-				<dt>@T("密码强度检验")</dt>
-				<dd>
-					<input id="PaswordStrength" name="PaswordStrength" value="@DHSetting.Current.PaswordStrength" class="input-txt" type="text">
-					<span class="err"></span>
-					<p class="notic">@T("密码强度正则规则")</p>
-				</dd>
-			</dl>
+        <div class="ncap-form-default">
+            <dl>
+                <dt>@T("系统名称")</dt>
+                <dd>
+                    <input id="DisplayName" name="DisplayName" value="@NewLife.Common.SysConfig.Current.DisplayName" class="input-txt" type="text">
+                    <span class="err"></span>
+                    <p class="notic">@T("系统名称, 将显示在后台顶部欢迎信息等位置")</p>
+                </dd>
+            </dl>
+            <dl>
+                <dt>@T("网站域名")</dt>
+                <dd>
+                    <input id="CurDomainUrl" name="CurDomainUrl" value="@DHSetting.Current.CurDomainUrl" class="input-txt" type="text">
+                    <span class="err"></span>
+                    <p class="notic">@T("网站的域名, 必须http://或者https://开头")</p>
+                </dd>
+            </dl>
+            <dl>
+                <dt>@T("公司名称")</dt>
+                <dd>
+                    <input id="companyname" name="companyname" value="@NewLife.Common.SysConfig.Current.Company" class="input-txt" type="text">
+                    <span class="err"></span>
+                    <p class="notic">@T("公司名称, 将会显示在底部等位置")</p>
+                </dd>
+            </dl>
+            <dl>
+                <dt>@T("客服联系电话")</dt>
+                <dd>
+                    <input id="CustomerTel" name="CustomerTel" value="@ViewBag.Model.SiteTel" class="input-txt" type="text">
+                    <span class="err"></span>
+                    <p class="notic">@T("客服联系电话,将会显示在头部或者底部等位置")</p>
+                </dd>
+            </dl>
+            <dl>
+                <dt>@T("前台页头")</dt>
+                <dd>
+                    <textarea name="pagefoot" id="pagefoot">@ViewBag.Model.HeaderCustomHtml</textarea>
+                    <span class="err"></span>
+                </dd>
+            </dl>
+            <dl>
+                <dt>@T("前台页脚")</dt>
+                <dd>
+                    <textarea name="pagefoot" id="pagefoot">@ViewBag.Model.FooterCustomHtml</textarea>
+                    <span class="err"></span>
+                </dd>
+            </dl>
+            <dl>
+                <dt>@T("流量统计配置")</dt>
+                <dd>
+                    <textarea name="Statistical" id="Statistical">@DHSetting.Current.Statistical</textarea>
+                    <span class="err"></span>
+                </dd>
+            </dl>
+            <dl>
+                <dt>@T("会话超时")</dt>
+                <dd>
+                    <input id="sessiontimeout" name="sessiontimeout" value="@DHSetting.Current.SessionTimeout" class="input-txt" type="text">
+                    <span class="err"></span>
+                    <p class="notic">@T("单点登录后会话超时时间, 该时间内可借助Cookie登录，默认0s")</p>
+                </dd>
+            </dl>
+            <dl>
+                <dt>@T("刷新用户周期")</dt>
+                <dd>
+                    <input id="refreshuserperiod" name="refreshuserperiod" value="@DHSetting.Current.RefreshUserPeriod" class="input-txt" type="text">
+                    <span class="err"></span>
+                    <p class="notic">@T("该周期内多次SSO登录只拉取一次用户信息，默认600秒")</p>
+                </dd>
+            </dl>
+            <dl>
+                <dt>@T("允许密码登录")</dt>
+                <dd>
+                    <div class="onoff">
+                        <label for="AllowLogin1" class="cb-enable @(DHSetting.Current.AllowLogin ? "selected" : "")">@T("开启")</label>
+                        <label for="AllowLogin0" class="cb-disable @(!DHSetting.Current.AllowLogin ? "selected" : "")">@T("关闭")</label>
+                        <input id="AllowLogin1" name="AllowLogin" value="1" type="radio" @(DHSetting.Current.AllowLogin? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
+                        <input id="AllowLogin0" name="AllowLogin" value="0" type="radio" @(!DHSetting.Current.AllowLogin ? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
+                    </div>
+                    <p class="notic">@T("允许密码/手机/扫码登录。允许输入用户名密码/手机号/扫码进行登录")</p>
+                </dd>
+            </dl>
+            <dl>
+                <dt>@T("允许自动注册")</dt>
+                <dd>
+                    <div class="onoff">
+                        <label for="AutoRegister1" class="cb-enable @(DHSetting.Current.AutoRegister ? "selected" : "")">@T("开启")</label>
+                        <label for="AutoRegister0" class="cb-disable @(!DHSetting.Current.AutoRegister ? "selected" : "")">@T("关闭")</label>
+                        <input id="AutoRegister1" name="AutoRegister" value="1" type="radio" @(DHSetting.Current.AutoRegister? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
+                        <input id="AutoRegister0" name="AutoRegister" value="0" type="radio" @(!DHSetting.Current.AutoRegister ? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
+                    </div>
+                    <p class="notic">@T("SSO登录后，如果本地未登录，自动注册新用户。全局设置和OAuth应用设置只要有一个启用则表示使用")</p>
+                </dd>
+            </dl>
+            <dl>
+                <dt>@T("使用Sso角色")</dt>
+                <dd>
+                    <div class="onoff">
+                        <label for="UseSsoRole1" class="cb-enable @(DHSetting.Current.UseSsoRole ? "selected" : "")">@T("开启")</label>
+                        <label for="UseSsoRole0" class="cb-disable @(!DHSetting.Current.UseSsoRole ? "selected" : "")">@T("关闭")</label>
+                        <input id="UseSsoRole1" name="UseSsoRole" value="1" type="radio" @(DHSetting.Current.UseSsoRole? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
+                        <input id="UseSsoRole0" name="UseSsoRole" value="0" type="radio" @(!DHSetting.Current.UseSsoRole ? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
+                    </div>
+                    <p class="notic">@T("SSO登录后继续使用SSO角色，默认true；否则使用DefaultRole")</p>
+                </dd>
+            </dl>
+            <dl>
+                <dt>@T("注销所有系统")</dt>
+                <dd>
+                    <div class="onoff">
+                        <label for="LogoutAll1" class="cb-enable @(DHSetting.Current.LogoutAll ? "selected" : "")">@T("开启")</label>
+                        <label for="LogoutAll0" class="cb-disable @(!DHSetting.Current.LogoutAll ? "selected" : "")">@T("关闭")</label>
+                        <input id="LogoutAll1" name="LogoutAll" value="1" type="radio" @(DHSetting.Current.LogoutAll? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
+                        <input id="LogoutAll0" name="LogoutAll" value="0" type="radio" @(!DHSetting.Current.LogoutAll ? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
+                    </div>
+                    <p class="notic">@T("默认false仅注销本系统，true时注销SsoServer。SsoServer不要开启")</p>
+                </dd>
+            </dl>
+            <dl>
+                <dt>@T("启用移动端模板")</dt>
+                <dd>
+                    <div class="onoff">
+                        <label for="AllowMobileTemp1" class="cb-enable @(DHSetting.Current.AllowMobileTemp ? "selected" : "")">@T("开启")</label>
+                        <label for="AllowMobileTemp0" class="cb-disable @(!DHSetting.Current.AllowMobileTemp ? "selected" : "")">@T("关闭")</label>
+                        <input id="AllowMobileTemp1" name="AllowMobileTemp" value="1" type="radio" @(DHSetting.Current.AllowMobileTemp? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
+                        <input id="AllowMobileTemp0" name="AllowMobileTemp" value="0" type="radio" @(!DHSetting.Current.AllowMobileTemp ? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
+                    </div>
+                </dd>
+            </dl>
+            <dl>
+                <dt>@T("启用多语言")</dt>
+                <dd>
+                    <div class="onoff">
+                        <label for="IsEnableLanguage1" class="cb-enable @(LocalizationSettings.Current.IsEnable ? "selected" : "")">@T("开启")</label>
+                        <label for="IsEnableLanguage0" class="cb-disable @(!LocalizationSettings.Current.IsEnable ? "selected" : "")">@T("关闭")</label>
+                        <input id="IsEnableLanguage1" name="IsEnableLanguage" value="1" type="radio" @(LocalizationSettings.Current.IsEnable? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
+                        <input id="IsEnableLanguage0" name="IsEnableLanguage" value="0" type="radio" @(!LocalizationSettings.Current.IsEnable ? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
+                    </div>
+                </dd>
+            </dl>
+            <dl>
+                <dt>@T("启用SEO友好URL")</dt>
+                <dd>
+                    <div class="onoff">
+                        <label for="SeoFriendlyUrlsForLanguagesEnabled1" class="cb-enable @(LocalizationSettings.Current.SeoFriendlyUrlsForLanguagesEnabled ? "selected" : "")">@T("开启")</label>
+                        <label for="SeoFriendlyUrlsForLanguagesEnabled0" class="cb-disable @(!LocalizationSettings.Current.SeoFriendlyUrlsForLanguagesEnabled ? "selected" : "")">@T("关闭")</label>
+                        <input id="SeoFriendlyUrlsForLanguagesEnabled1" name="SeoFriendlyUrlsForLanguagesEnabled" value="1" type="radio" @(LocalizationSettings.Current.SeoFriendlyUrlsForLanguagesEnabled? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
+                        <input id="SeoFriendlyUrlsForLanguagesEnabled0" name="SeoFriendlyUrlsForLanguagesEnabled" value="0" type="radio" @(!LocalizationSettings.Current.SeoFriendlyUrlsForLanguagesEnabled ? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
+                    </div>
+                    <p class="notic">@T("是否启用多语言的SEO友好URL，启用后在地址栏会有语言路径如cn/、en/")</p>
+                </dd>
+            </dl>
+            <dl>
+                <dt>@T("启用接口调试")</dt>
+                <dd>
+                    <div class="onoff">
+                        <label for="IsAllowSwagger1" class="cb-enable @(IsAllowSwagger ? "selected" : "")">@T("开启")</label>
+                        <label for="IsAllowSwagger0" class="cb-disable @(!IsAllowSwagger ? "selected" : "")">@T("关闭")</label>
+                        <input id="IsAllowSwagger1" name="IsAllowSwagger" value="1" type="radio" @(IsAllowSwagger? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
+                        <input id="IsAllowSwagger0" name="IsAllowSwagger" value="0" type="radio" @(!IsAllowSwagger ? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
+                    </div>
+                    <p class="notic"></p>
+                </dd>
+            </dl>
+            <dl>
+                <dt>@T("SEO标题格式")</dt>
+                <dd>
+                    <label class="radio-label">
+                        <i class="radio-common @(DHSetting.Current.PageTitleSeoAdjustment == 1 ? "selected" : "")">
+                            <input type="radio" value="1" name="PageTitleSeoAdjustment" @(DHSetting.Current.PageTitleSeoAdjustment == 1 ? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
+                        </i>
+                        <span>@T("网站名称在后")</span>
+                    </label>
+                    <label class="radio-label">
+                        <i class="radio-common @(DHSetting.Current.PageTitleSeoAdjustment == 0 ? "selected" : "")">
+                            <input type="radio" value="0" name="PageTitleSeoAdjustment" @(DHSetting.Current.PageTitleSeoAdjustment == 0 ? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
+                        </i>
+                        <span>@T("网站名称在前")</span>
+                    </label>
+                    <p class="notic">@T("页面标题SEO调整。0为网页标题在网站名称后，1为网页标题在网站名称前")</p>
+                </dd>
+            </dl>
+            <dl>
+                <dt>@T("启用Url后缀")</dt>
+                <dd>
+                    <div class="onoff">
+                        <label for="IsAllowUrlSuffix1" class="cb-enable @(DHSetting.Current.IsAllowUrlSuffix ? "selected" : "")">@T("开启")</label>
+                        <label for="IsAllowUrlSuffix0" class="cb-disable @(!DHSetting.Current.IsAllowUrlSuffix ? "selected" : "")">@T("关闭")</label>
+                        <input id="IsAllowUrlSuffix1" name="IsAllowUrlSuffix" value="1" type="radio" @(DHSetting.Current.IsAllowUrlSuffix? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
+                        <input id="IsAllowUrlSuffix0" name="IsAllowUrlSuffix" value="0" type="radio" @(!DHSetting.Current.IsAllowUrlSuffix ? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
+                    </div>
+                    <p class="notic">@T("启用Url后缀，则前台设置了路由的URL会有.html等后缀。设置之后需要重启网站才能生效")</p>
+                </dd>
+            </dl>
+            <dl>
+                <dt>@T("Url后缀")</dt>
+                <dd>
+                    <input id="UrlSuffix" name="UrlSuffix" value="@DHSetting.Current.UrlSuffix" class="input-txt" type="text">
+                    <span class="err"></span>
+                    <p class="notic">@T("Url后缀，当启用时Url路径中会根据规则带有后缀。为SEO伪静态使用")</p>
+                </dd>
+            </dl>
+            <dl>
+                <dt>@T("WWW跳转")</dt>
+                <dd>
+                    <select name="WwwRequirement" id="WwwRequirement">
+                        <!option value="NoMatter">@T("不处理")</!option>
+                        <!option value="WithWww">@T("页面应具有WWW前缀")</!option>
+                        <!option value="WithoutWww">@T("页面不应具有WWW前缀")</!option>
+                    </select>
+                    <span class="err"></span>
+                    <p class="notic">@T("如果使用宝塔可以不用设置，请在其中设置即可，目前后端没有对应配置参数，修改无变化")</p>
+                </dd>
+            </dl>
+            <dl>
+                <dt>@T("流量统计配置")</dt>
+                <dd>
+                    <textarea id="Statistical" name="Statistical"></textarea>
+                    <span class="err"></span>
+                    <p class="notic">@T("目前后端没有对应配置参数，修改无变化")</p>
+                </dd>
+            </dl>
+            <dl>
+                <dt>@T("SSL启用")</dt>
+                <dd>
+                    <select name="SslEnabled" id="SslEnabled">
+                        <!option value="0" @(DHSetting.Current.SslEnabled == 0 && !DHSetting.Current.AllSslEnabled ? "selected":"")>@T("不处理")</!option>
+                        <!option value="1" @(DHSetting.Current.SslEnabled == 1 && !DHSetting.Current.AllSslEnabled ? "selected" : "")>@T("局部重定向（永久）到页面的HTTPS版本")</!option>
+                        <!option value="2" @(DHSetting.Current.SslEnabled == 2 && !DHSetting.Current.AllSslEnabled ? "selected" : "")>@T("局部（永久）重定向到页面的HTTP版本")</!option>
+                        <!option value="99" @(DHSetting.Current.SslEnabled == 1 && DHSetting.Current.AllSslEnabled ? "selected" : "")>@T("全站全局启用")</!option>
+                    </select>
+                    <span class="err"></span>
+                    <p class="notic">@T("启用SSL后页面会自动跳转到https，Linux下不用设置，如果使用宝塔请在其中设置即可")</p>
+                </dd>
+            </dl>
+            <dl>
+                <dt>@T("是否关闭网站")</dt>
+                <dd>
+                    <div class="onoff">
+                        <label for="SiteIsClose1" class="cb-enable">@T("开启")</label>
+                        <label for="SiteIsClose0" class="cb-disable">@T("关闭")</label>
+                        <input id="SiteIsClose1" name="SiteIsClose" value="1" type="radio">
+                        <input id="SiteIsClose0" name="SiteIsClose" value="0" type="radio">
+                    </div>
+                    <p class="notic">@T("目前后端没有对应配置参数，修改无变化")</p>
+                </dd>
+            </dl>
+            <dl>
+                <dt>@T("是否生成静态网页")</dt>
+                <dd>
+                    <div class="onoff">
+                        <label for="IsHtmlStaticDevelopmentMode1" class="cb-enable @(!DHSetting.Current.IsHtmlStaticDevelopmentMode ? "selected" : "")">@T("开启")</label>
+                        <label for="IsHtmlStaticDevelopmentMode0" class="cb-disable @(DHSetting.Current.IsHtmlStaticDevelopmentMode ? "selected" : "")">@T("关闭")</label>
+                        <input id="IsHtmlStaticDevelopmentMode1" name="IsHtmlStaticDevelopmentMode" value="1" type="radio" @(!DHSetting.Current.IsHtmlStaticDevelopmentMode ? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
+                        <input id="IsHtmlStaticDevelopmentMode0" name="IsHtmlStaticDevelopmentMode" value="0" type="radio" @(DHSetting.Current.IsHtmlStaticDevelopmentMode? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
+                    </div>
+                    <p class="notic">@T("启用后动态页面转静态页面")</p>
+                </dd>
+            </dl>
+            <dl>
+                <dt>@T("静态网页过期时间")</dt>
+                <dd>
+                    <input id="HtmlStaticExpireMinutes" name="HtmlStaticExpireMinutes" value="@DHSetting.Current.HtmlStaticExpireMinutes" class="input-txt" type="text">
+                    <span class="err"></span>
+                    <p class="notic">@T("动态页面转静态页面过期时间")</p>
+                </dd>
+            </dl>
+            <dl>
+                <dt>@T("签名校验Token")</dt>
+                <dd>
+                    <input id="ServerToken" name="ServerToken" value="@DHSetting.Current.ServerToken" class="input-txt" type="text">
+                    <span class="err"></span>
+                    <p class="notic">@T("接口请求时检验Token")</p>
+                </dd>
+            </dl>
+            <dl>
+                <dt>@T("密码强度检验")</dt>
+                <dd>
+                    <input id="PaswordStrength" name="PaswordStrength" value="@DHSetting.Current.PaswordStrength" class="input-txt" type="text">
+                    <span class="err"></span>
+                    <p class="notic">@T("密码强度正则规则")</p>
+                </dd>
+            </dl>
 
+            <dl>
+                <dt>@T("允许获取请求日志")</dt>
+                <dd>
+                    <div class="onoff">
+                        <label for="AllowRequestParams1" class="cb-enable @(PekSysSetting.Current.AllowRequestParams ? "selected" : "")">@T("开启")</label>
+                        <label for="AllowRequestParams0" class="cb-disable @(!PekSysSetting.Current.AllowRequestParams ? "selected" : "")">@T("关闭")</label>
+                        <input id="AllowRequestParams1" name="AllowRequestParams" value="1" type="radio" @(PekSysSetting.Current.AllowRequestParams ? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
+                        <input id="AllowRequestParams0" name="AllowRequestParams" value="0" type="radio" @(!PekSysSetting.Current.AllowRequestParams? Html.Raw("checked=\"checked\"") : Html.Raw(""))>
+                    </div>
+                    <p class="notic">@T(" 开启对性能有影响，需要调试请求数据时打开，用完及时关闭。")</p>
+                </dd>
+            </dl>
 
-			<dl>
-				<dt>@T("Trace跟踪路径")</dt>
-				<dd>
-					<input id="StarWeb" name="StarWeb" value="@DHSetting.Current.StarWeb" class="input-txt" type="text">
-					<span class="err"></span>
-					<p class="notic">@T("用于排查问题")</p>
-				</dd>
-			</dl>
-			<dl>
-				<dt></dt>
-				<dd><a href="JavaScript:void(0);" class="btn" onclick="document.form1.submit()">@T("确认提交")</a></dd>
-			</dl>
-		</div>
-	}
+            <dl>
+                <dt>@T("最大在线人数")</dt>
+                <dd>
+                    <input id="MaxOnlineCount" name="MaxOnlineCount" value="@DHSetting.Current.MaxOnlineCount" class="input-txt" type="text">
+                    <span class="err"></span>
+                    <p class="notic">@T("平台访问的最大在线人数")</p>
+                </dd>
+            </dl>
+
+            <dl>
+                <dt>@T("更新用户在线时间间隔")</dt>
+                <dd>
+                    <input id="UpdateOnlineTimeSpan" name="UpdateOnlineTimeSpan" value="@DHSetting.Current.UpdateOnlineTimeSpan" class="input-txt" type="text">
+                    <span class="err"></span>
+                    <p class="notic">@T("单位为分钟,0代表不更新")</p>
+                </dd>
+            </dl>
+
+            <dl>
+                <dt>@T("禁止访问时间")</dt>
+                <dd>
+                    <textarea  id="BanAccessTime" name="BanAccessTime">@DHSetting.Current.BanAccessTime</textarea>
+                    <span class="err"></span>
+                    <p class="notic">@T("每行一个时间段，格式为2023/09/08-2023/10/08")</p>
+                </dd>
+            </dl>
+
+            <dl>
+                <dt>@T("禁止IP访问")</dt>
+                <dd>
+                    <textarea id="BanAccessIP" name="BanAccessIP">@DHSetting.Current.BanAccessIP</textarea>
+                    <span class="err"></span>
+                    <p class="notic">@T("每行一个IP")</p>
+                </dd>
+            </dl>
+
+            <dl>
+                <dt>@T("允许IP访问")</dt>
+                <dd>
+                    <textarea id="AllowAccessIP" name="AllowAccessIP">@DHSetting.Current.AllowAccessIP</textarea>
+                    <span class="err"></span>
+                    <p class="notic">@T("每行一个IP，允许IP访问优先级高，可以设置*为全局")</p>
+                </dd>
+            </dl>
+
+            <dl>
+                <dt>@T("Trace跟踪路径")</dt>
+                <dd>
+                    <input id="StarWeb" name="StarWeb" value="@DHSetting.Current.StarWeb" class="input-txt" type="text">
+                    <span class="err"></span>
+                    <p class="notic">@T("用于排查问题")</p>
+                </dd>
+            </dl>
+            <dl>
+                <dt></dt>
+                <dd><a href="JavaScript:void(0);" class="btn" onclick="document.form1.submit()">@T("确认提交")</a></dd>
+            </dl>
+        </div>
+    }
 </div>
 <script asp-location="Footer">
-	layui.use(['element', 'layer', 'jquery', 'upload', 'form'], function () {
-		var $ = layui.jquery,
-			form = layui.form,
-			layer = layui.layer,
-			upload = layui.upload,
-			layer = layui.layer,
+    layui.use(['element', 'layer', 'jquery', 'upload', 'form'], function () {
+        var $ = layui.jquery,
+            form = layui.form,
+            layer = layui.layer,
+            upload = layui.upload,
+            layer = layui.layer,
 
-			element = layui.element;
-	})
+            element = layui.element;
+    })
 
-	$(function () {
-		$("#site_icon").change(function () {
-			$("#textfield99").val($("#site_icon").val());
-		});
-		$("#site_logo").change(function () {
-			$("#textfield1").val($("#site_logo").val());
-		});
-		$("#site_logowx").change(function () {
-			$("#textfield5").val($("#site_logowx").val());
-		});
-		$("#memberlogo").change(function () {
-			$("#textfield10").val($("#memberlogo").val());
-		});
-		$("#membersmalllogo").change(function () {
-			$("#textfield11").val($("#membersmalllogo").val());
-		});
-	})
+    $(function () {
+        $("#site_icon").change(function () {
+            $("#textfield99").val($("#site_icon").val());
+        });
+        $("#site_logo").change(function () {
+            $("#textfield1").val($("#site_logo").val());
+        });
+        $("#site_logowx").change(function () {
+            $("#textfield5").val($("#site_logowx").val());
+        });
+        $("#memberlogo").change(function () {
+            $("#textfield10").val($("#memberlogo").val());
+        });
+        $("#membersmalllogo").change(function () {
+            $("#textfield11").val($("#membersmalllogo").val());
+        });
+    })
 </script>
