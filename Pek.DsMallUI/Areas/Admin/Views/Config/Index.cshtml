@@ -6,7 +6,7 @@
     // css
     PekHtml.AppendCssFileParts("/static/plugins/js/layui/css/layui.css");
 
-    var IsAllowSwagger = ConfigFileHelper.GetAppSetting("SwaggerOption:Enabled", "Settings/Swagger.json").ToBoolean();
+    var IsAllowSwagger = ConfigFileHelper.GetAppSetting("SwaggerOption:Enabled", "Data/Settings/Swagger.json").ToBoolean();
     XTrace.WriteLine("IsAllowSwagger===" + IsAllowSwagger);
 }
 <style asp-location="true">
