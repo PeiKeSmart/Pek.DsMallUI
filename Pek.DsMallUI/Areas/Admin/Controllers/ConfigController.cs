@@ -55,7 +55,7 @@ public class ConfigController : PekCubeAdminControllerX
             return Prompt(new PromptModel { Message = GetResource("网站名称不可为空") });
         }
 
-        ConfigFileHelper.AddOrUpdateAppSetting("SwaggerOption:Enabled", isAllowSwagger == 1, "Data/Settings/Swagger.json");
+        ConfigFileHelper.AddOrUpdateAppSetting("SwaggerOption:Enabled", isAllowSwagger == 1, "Settings/Swagger.json");
 
         Model.SeoTitle = SeoTitle.SafeString().Trim();
         Model.SeoKey = SeoKey.SafeString().Trim();
