@@ -8,8 +8,7 @@ using NewLife;
 
 using Pek.DsMallUI.UEditor;
 using Pek.Mime;
-using Pek.NCube;
-
+using Pek.NCube.BaseControllers;
 using XCode.Membership;
 
 namespace Pek.DsMallUI.Controllers;

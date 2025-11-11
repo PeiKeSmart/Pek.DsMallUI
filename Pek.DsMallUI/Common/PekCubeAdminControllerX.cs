@@ -3,8 +3,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 using NewLife.Collections;
 using NewLife.Web;
-
-using Pek.NCube;
+using Pek.NCube.BaseControllers;
 using Pek.Webs;
 
 namespace Pek.DsMallUI;
