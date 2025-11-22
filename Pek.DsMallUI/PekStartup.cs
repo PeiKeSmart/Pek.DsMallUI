@@ -1,8 +1,16 @@
-﻿using Pek.DsMallUI.Areas.Admin.Controllers;
+﻿using DH.Entity;
+
+using Pek.Configs;
+using Pek.DsMallUI.Areas.Admin.Controllers;
+using Pek.Events;
 using Pek.Infrastructure;
 using Pek.NCubeUI;
 using Pek.NCubeUI.Areas.Admin;
+using Pek.NCubeUI.Events;
 using Pek.VirtualFileSystem;
+
+using XCode;
+using XCode.Membership;
 
 namespace Pek.DsMallUI;
 
@@ -17,6 +25,88 @@ public partial class PekStartup : IPekStartup
     /// <param name="application">用于配置应用程序的请求管道的生成器</param>
     public void Configure(IApplicationBuilder application)
     {
+        if (!PekSysSetting.Current.IsInstalled)
+        {
+            var _eventPublisher = NewLife.Model.ObjectContainer.Provider.GetPekService<IEventPublisher>();
+            // 消费菜单生成
+            _eventPublisher?.Publish(new InstallEvent());
+
+            var list = new List<Role>();
+
+            var modelrole = Role.FindByID(1);
+            modelrole.Name = "超级管理员";
+            list.Add(modelrole);
+
+            var modelRoleEx = new RoleEx();
+            modelRoleEx.Id = modelrole.ID;
+            modelRoleEx.IsAdmin = true;
+            modelRoleEx.Insert();
+
+            modelrole = Role.FindByID(2);
+            modelrole.Name = "管理员";
+            modelrole.Remark = "普通管理员拥有全部的管理权限";
+            modelrole.IsSystem = true;
+            list.Add(modelrole);
+
+            modelRoleEx = new RoleEx();
+            modelRoleEx.Id = modelrole.ID;
+            modelRoleEx.IsAdmin = true;
+            modelRoleEx.Insert();
+
+            modelrole = Role.FindByID(3);
+            modelrole.Name = "高级用户";
+            modelrole.Remark = "业务管理人员，可以管理业务模块，可以分配授权用户等级";
+            if (!DHSetting.Current.IsOnlyManager)
+            {
+                modelrole.IsSystem = true;
+            }
+            list.Add(modelrole);
+
+            modelrole = Role.FindByID(4);
+            modelrole.Name = "普通用户";
+            modelrole.Remark = "普通业务人员，可以使用系统常规业务模块功能";
+            if (!DHSetting.Current.IsOnlyManager)
+            {
+                modelrole.IsSystem = true;
+            }
+            list.Add(modelrole);
+
+            modelrole = Role.FindByID(5);
+            if (modelrole == null)
+            {
+                modelrole = new Role();
+                modelrole.ID = 5;
+            }
+
+            modelrole.Name = "默认用户";
+            modelrole.Remark = "新注册用户默认属于默认用户组";
+            if (!DHSetting.Current.IsOnlyManager)
+            {
+                modelrole.IsSystem = true;
+            }
+            list.Add(modelrole);
+
+            list.Save();
+
+            var departmentList = Department.FindAllWithCache().OrderBy(e => e.ID);
+            foreach (var item in departmentList)
+            {
+                if (item.ParentID > 0)
+                {
+                    item.Level = 1;
+                    item.Ex4 = $"{item.Parent?.Ex4}{item.ID},";
+                }
+                else
+                {
+                    item.Ex4 = $",{item.ID},";
+                }
+                item.Update();
+                Department.Meta.Cache.Clear("", true);
+            }
+
+            PekSysSetting.Current.IsInstalled = true;
+            PekSysSetting.Current.Save();
+        }
     }
 
     /// <summary>
