@@ -11,8 +11,6 @@ using Pek.NCubeUI;
 using Pek.NCubeUI.Areas.Admin;
 using Pek.NCubeUI.Events;
 using Pek.VirtualFileSystem;
-
-using XCode;
 using XCode.Membership;
 
 namespace Pek.DsMallUI;
@@ -76,52 +74,73 @@ public partial class PekStartup : IPekStartup
             // 消费菜单生成
             _eventPublisher?.Publish(new InstallEvent());
 
-            var list = new List<Role>();
-
             var modelrole = Role.FindByID(1);
             modelrole.Name = "超级管理员";
-            list.Add(modelrole);
-
-            var modelRoleEx = new RoleEx();
-            modelRoleEx.Id = modelrole.ID;
-            modelRoleEx.IsAdmin = true;
-            modelRoleEx.Insert();
+            modelrole.Save();
+            var modelRoleEx = new RoleEx
+            {
+                Id = modelrole.ID,
+                IsAdmin = true
+            };
+            modelRoleEx.Save();
 
             modelrole = Role.FindByID(2);
+            modelrole ??= new Role
+                {
+                    ID = 2
+                };
             modelrole.Name = "管理员";
             modelrole.Remark = "普通管理员拥有全部的管理权限";
             modelrole.IsSystem = true;
-            list.Add(modelrole);
-
-            modelRoleEx = new RoleEx();
-            modelRoleEx.Id = modelrole.ID;
-            modelRoleEx.IsAdmin = true;
+            modelrole.Save();
+            modelRoleEx = new RoleEx
+            {
+                Id = modelrole.ID,
+                IsAdmin = true
+            };
             modelRoleEx.Insert();
 
             modelrole = Role.FindByID(3);
+            modelrole ??= new Role
+            {
+                ID = 3
+            };
             modelrole.Name = "高级用户";
             modelrole.Remark = "业务管理人员，可以管理业务模块，可以分配授权用户等级";
             if (!DHSetting.Current.IsOnlyManager)
             {
                 modelrole.IsSystem = true;
             }
-            list.Add(modelrole);
+            modelrole.Save();
+            modelRoleEx = new RoleEx
+            {
+                Id = modelrole.ID
+            };
+            modelRoleEx.Insert();
 
             modelrole = Role.FindByID(4);
+            modelrole ??= new Role
+            {
+                ID = 4
+            };
             modelrole.Name = "普通用户";
             modelrole.Remark = "普通业务人员，可以使用系统常规业务模块功能";
             if (!DHSetting.Current.IsOnlyManager)
             {
                 modelrole.IsSystem = true;
             }
-            list.Add(modelrole);
+            modelrole.Save();
+            modelRoleEx = new RoleEx
+            {
+                Id = modelrole.ID
+            };
+            modelRoleEx.Insert();
 
             modelrole = Role.FindByID(5);
-            if (modelrole == null)
-            {
-                modelrole = new Role();
-                modelrole.ID = 5;
-            }
+            modelrole ??= new Role
+                {
+                    ID = 5
+                };
 
             modelrole.Name = "默认用户";
             modelrole.Remark = "新注册用户默认属于默认用户组";
@@ -129,9 +148,12 @@ public partial class PekStartup : IPekStartup
             {
                 modelrole.IsSystem = true;
             }
-            list.Add(modelrole);
-
-            list.Save();
+            modelrole.Save();
+            modelRoleEx = new RoleEx
+            {
+                Id = modelrole.ID
+            };
+            modelRoleEx.Insert();
 
             var departmentList = Department.FindAllWithCache().OrderBy(e => e.ID);
             foreach (var item in departmentList)
