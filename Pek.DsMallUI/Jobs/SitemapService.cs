@@ -43,15 +43,25 @@ public class SitemapService : CubeJobBase<SitemapArgument>
         var Nonce = Pek.Helpers.Randoms.RandomString(6);
         var Sign = CheckSignature.Create(TimeStamp, Nonce, Token);
 
-        await Helpers.DHWeb.Client().Get($"{UrlHelper.Combine(DHSetting.Current.CurDomainUrl, "Common", "SitemapXml")}")
-            .Header("Signature", Sign)
-            .Header("Nonce", Nonce)
-            .Header("TimeStamp", TimeStamp)
-            .WhenCatch<Exception>(ex =>
+        try
+        {
+            var response = await Helpers.DHWeb.Client().Get($"{UrlHelper.Combine(DHSetting.Current.CurDomainUrl!, "Common", "SitemapXml")}")
+                .Header("Signature", Sign)
+                .Header("Nonce", Nonce)
+                .Header("TimeStamp", TimeStamp)
+                .GetResponseAsync().ConfigureAwait(false);
+
+            if (!response.IsSuccess)
             {
-                return ex.Message;
-            })
-            .ResultStringAsync().ConfigureAwait(false);
+                span?.SetError(new Exception($"HTTP {response.StatusCode}: {response.Data}"), null);
+                return $"Failed: {response.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            span?.SetError(ex, null);
+            return $"Error: {ex.Message}";
+        }
 
         return "OK";
     }
