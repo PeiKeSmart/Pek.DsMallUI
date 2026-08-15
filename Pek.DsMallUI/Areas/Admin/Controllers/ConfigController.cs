@@ -44,7 +44,7 @@ public class ConfigController : PekCubeAdminControllerX
     [EntityAuthorize(PermissionFlags.Update)]
     [HttpPost]
     [DisplayName("站点设置")]
-    public IActionResult UpdateBase(String curDomainUrl, Int32 isEnableLanguage, String Registration, Int32 isAllowSwagger, Int32 isAllowMarkupMin, Int32 refreshuserperiod, Int32 sessiontimeout, Int32 logoutAll, Int32 useSsoRole, String companyname, String Copyright, Int32 allowLogin, Int32 isAllowUrlSuffix, String SiteName, String SeoDescribe, String SeoKey, String SeoTitle, Int32 seoFriendlyUrlsForLanguagesEnabled, IFormFile site_logowx, IFormFile site_logo, IFormFile site_icon, String WwwRequirement, String SslEnabled, Int32 SiteIsClose, IFormFile memberlogo, IFormFile membersmalllogo, String UrlSuffix, String Statistical, String PageFoot, Int32 PageTitleSeoAdjustment, String CustomerTel, Int32 AutoRegister, Int32 isHtmlStaticDevelopmentMode, Int32 htmlStaticExpireMinutes, String ServerToken, Int32 AllowRequestParams, Int32 EnableOnlineStatistics, Int32 MaxOnlineCount, String BanAccessTime, String BanAccessIP, String AllowAccessIP, Int32 OnlineCountExpire, Int32 UpdateOnlineTimeSpan, Int32 OnlineUserExpire, String PaswordStrength, String StarWeb, String FooterCustomHtml, String HeaderCustomHtml)
+    public IActionResult UpdateBase(String curDomainUrl, Int32 isEnableLanguage, String Registration, Int32 isAllowSwagger, Int32 isAllowMarkupMin, Int32 refreshuserperiod, Int32 sessiontimeout, Int32 logoutAll, Int32 useSsoRole, String companyname, String Copyright, Int32 allowLogin, Int32 isAllowUrlSuffix, String SiteName, String SeoDescribe, String SeoKey, String SeoTitle, Int32 seoFriendlyUrlsForLanguagesEnabled, IFormFile site_logowx, IFormFile site_logo, IFormFile site_icon, String WwwRequirement, String SslEnabled, Int32 SiteIsClose, IFormFile memberlogo, IFormFile membersmalllogo, String UrlSuffix, String Statistical, String PageFoot, Int32 PageTitleSeoAdjustment, String CustomerTel,String CustomerEmail, Int32 AutoRegister, Int32 isHtmlStaticDevelopmentMode, Int32 htmlStaticExpireMinutes, String ServerToken, Int32 AllowRequestParams, Int32 EnableOnlineStatistics, Int32 MaxOnlineCount, String BanAccessTime, String BanAccessIP, String AllowAccessIP, Int32 OnlineCountExpire, Int32 UpdateOnlineTimeSpan, Int32 OnlineUserExpire, String PaswordStrength, String StarWeb, String FooterCustomHtml, String HeaderCustomHtml)
     {
         var Model = SiteInfo.FindDefault();
         if (SiteName.IsNullOrWhiteSpace())
@@ -62,6 +62,7 @@ public class ConfigController : PekCubeAdminControllerX
         Model.HeaderCustomHtml = HeaderCustomHtml;
         Model.FooterCustomHtml = FooterCustomHtml;
         Model.SiteTel = CustomerTel;
+        Model.SiteEmail = CustomerEmail;
         Model.Update();
 
         var languagelist = Language.FindByStatus().OrderBy(e => e.DisplayOrder); //获取全部有效语言
